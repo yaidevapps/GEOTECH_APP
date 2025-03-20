@@ -1,0 +1,19 @@
+# Python compiled files
+__pycache__/
+*.pyc
+
+# Virtual environment
+env/
+
+# Environment variables
+.env
+
+# Test files and dynamically generated files
+*.pdf
+chat_history.json
+
+# Streamlit secrets
+.secrets.toml
+
+# macOS system files
+.DS_Store

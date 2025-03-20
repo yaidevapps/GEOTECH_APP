@@ -1,0 +1,257 @@
+/* Terra Design System - Centralized Styles */
+
+/* Define Design Tokens as CSS Custom Properties */
+:root {
+    /* Colors */
+    --primary-dark: #2D3142; /* Deep slate */
+    --primary-medium: #4F5D75; /* Steel blue */
+    --secondary-accent: #E7B15D; /* Earthy amber */
+    --secondary-terracotta: #D96A4F; /* Terracotta */
+    --neutral-light: #F2F4F8; /* Off-white */
+    --neutral-gray: #768A9F; /* Sophisticated gray */
+    --text-dark: #2D3142;
+    --text-medium: #4F5D75;
+    --text-light: #768A9F;
+
+    /* Typography */
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Lato', sans-serif;
+    --font-size-heading1: 20px;
+    --font-size-heading2: 18px;
+    --font-size-heading3: 16px;
+    --font-size-body: 14px;
+    --font-size-caption: 12px;
+
+    /* Spacing and Borders */
+    --border-radius-small: 5px;
+    --border-radius-medium: 8px;
+    --border-radius-large: 15px;
+    --shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* General App Styling */
+.stApp {
+    background-color: var(--neutral-light);
+    font-family: var(--font-body);
+}
+
+/* Header */
+.header {
+    background-color: var(--primary-dark);
+    padding: 15px;
+    border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+    color: white;
+    text-align: center;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, var(--primary-dark), var(--primary-medium));
+    padding: 20px;
+}
+
+/* Tabs */
+.stTabs {
+    background-color: white;
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--shadow-subtle);
+    padding: 20px;
+}
+
+.stTabs button:hover {
+    background-color: var(--neutral-light);
+    transition: background-color 0.3s;
+}
+
+/* Chat Styling */
+.stChat {
+    background-color: var(--neutral-light);
+    padding: 20px;
+    border-radius: var(--border-radius-medium);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.chat-bubble-user {
+    background-color: var(--neutral-light) !important;
+    border: 1px solid var(--neutral-gray);
+    box-shadow: var(--shadow-subtle);
+    max-width: 70%;
+    align-self: flex-start;
+    margin: 15px 0;
+    padding: 20px;
+    border-radius: var(--border-radius-large);
+    color: var(--text-dark);
+}
+
+.chat-bubble-ai {
+    background-color: var(--primary-dark) !important;
+    border: 1px solid var(--primary-medium);
+    box-shadow: var(--shadow-subtle);
+    max-width: 70%;
+    align-self: flex-end;
+    margin: 15px 0;
+    padding: 20px;
+    border-radius: var(--border-radius-large);
+    color: white;
+}
+
+.stChatInput {
+    margin-top: 20px;
+    border: 1px solid var(--neutral-gray);
+    border-radius: var(--border-radius-large);
+    padding: 5px;
+}
+
+/* Inputs */
+.stTextInput > div > input,
+.stTextArea > div > textarea,
+.stSelectbox > div > div {
+    border: 1px solid var(--neutral-gray);
+    border-radius: var(--border-radius-medium);
+    padding: 10px;
+    background-color: white;
+}
+
+.stSelectbox,
+.stTextInput,
+.stTextArea {
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.stButton > button {
+    background: linear-gradient(90deg, var(--primary-dark), var(--primary-medium));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    padding: 10px 20px;
+    transition: background 0.3s ease;
+}
+
+.stButton > button:hover {
+    background: linear-gradient(90deg, var(--primary-medium), var(--primary-dark));
+}
+
+.stButton > button#generate_report {
+    margin-top: 15px;
+}
+
+/* Chat Suggestion Buttons */
+.suggestion-button {
+    background: linear-gradient(90deg, var(--neutral-gray), var(--primary-medium));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-large);
+    padding: 5px 10px;
+    font-size: var(--font-size-caption);
+    margin: 10px 0; /* Increased from 8px for better spacing */
+    transition: background 0.3s ease;
+}
+
+.suggestion-button:hover {
+    background: linear-gradient(90deg, var(--primary-medium), var(--neutral-gray));
+}
+
+/* Document Analysis and Report Generator Expanders */
+.st-expander[data-testid="stExpander"] {
+    border: 1px solid var(--neutral-gray);
+    border-radius: var(--border-radius-medium);
+    margin-bottom: 20px; /* Increased from 15px */
+    margin-top: 10px; /* Added for spacing above */
+    background-color: white;
+}
+
+.st-expander summary {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--text-dark);
+    background-color: var(--neutral-light);
+    padding: 10px;
+    border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
+}
+
+.st-expander p {
+    color: var(--text-medium);
+    line-height: 1.6;
+    margin: 8px 0;
+}
+
+/* Headings */
+h3 {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    color: var(--text-dark);
+    border-bottom: 2px solid var(--secondary-accent);
+    padding-bottom: 8px;
+    margin-top: 25px; /* Added for spacing above */
+    margin-bottom: 20px; /* Increased from 15px for spacing below */
+}
+
+/* Clear All Button for Document Analysis */
+.clear-all-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+
+.clear-all-button {
+    background: linear-gradient(90deg, var(--secondary-terracotta), var(--secondary-accent));
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    padding: 8px 16px;
+    font-size: var(--font-size-caption);
+    transition: background 0.3s ease;
+}
+
+.clear-all-button:hover {
+    background: linear-gradient(90deg, var(--secondary-accent), var(--secondary-terracotta));
+}
+
+/* Badges for Document Types */
+.badge {
+    background-color: var(--secondary-accent);
+    color: var(--text-dark);
+    padding: 6px 12px;
+    border-radius: var(--border-radius-large);
+    font-size: var(--font-size-caption);
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .stTabs {
+        padding: 10px;
+    }
+
+    .stChat {
+        min-height: 300px;
+    }
+
+    .chat-bubble-user,
+    .chat-bubble-ai {
+        max-width: 90%;
+    }
+
+    .stTextInput > div > input,
+    .stTextArea > div > textarea,
+    .stSelectbox > div > div {
+        font-size: var(--font-size-body);
+    }
+
+    .stButton > button,
+    .suggestion-button,
+    .clear-all-button {
+        padding: 8px 16px;
+        font-size: var(--font-size-caption);
+    }
+
+    .st-expander summary {
+        font-size: var(--font-size-body);
+    }
+}

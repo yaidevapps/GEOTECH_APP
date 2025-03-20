@@ -6,154 +6,41 @@ from datetime import datetime
 from agents import chat_agent, extraction_agent, report_agent
 from models import DocumentSummary
 
-# Custom CSS for modern styling (unchanged)
-st.markdown("""
-    <style>
-    /* General app styling */
-    .stApp {
-        background-color: #f5f6fa;
-    }
-    .stTabs {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        padding: 20px;
-    }
-    .stTabs button:hover {
-        background-color: #ecf0f1;
-        transition: background-color 0.3s;
-    }
-    body {
-        font-family: 'Inter', sans-serif;
-    }
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #2c3e50, #34495e);
-    }
-    /* Report Generator styling */
-    .st-expander[data-testid="stExpander"] {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        background-color: #f9f9f9;
-    }
-    .st-expander summary {
-        font-weight: bold;
-        color: #2c3e50;
-        background-color: #ecf0f1;
-        padding: 10px;
-        border-radius: 8px 8px 0 0;
-    }
-    .st-expander p {
-        color: #34495e;
-        line-height: 1.6;
-        margin: 5px 0;
-    }
-    h3 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
-        padding-bottom: 5px;
-    }
-    /* Document Analysis styling */
-    .st-expander[data-testid="stExpander"] {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        background-color: #ffffff;
-    }
-    /* Chat styling */
-    .stChat {
-        background-color: #f5f6fa;
-        padding: 20px;
-        border-radius: 10px;
-        min-height: 400px;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-    }
-    div[style*="background-color: #d1e7dd"] {
-        background-color: #d1e7dd !important;
-        border: 1px solid #b7d8c9;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        max-width: 70%;
-        align-self: flex-start;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 15px;
-    }
-    div[style*="background-color: #e0f7fa"] {
-        background-color: #e0f7fa !important;
-        border: 1px solid #b3e5fc;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        max-width: 70%;
-        align-self: flex-end;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 15px;
-    }
-    .stChatInput {
-        margin-top: 20px;
-        border: 1px solid #e0e0e0;
-        border-radius: 25px;
-        padding: 5px;
-    }
-    /* Inputs styling */
-    .stTextInput > div > input, .stTextArea > div > textarea {
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 10px;
-        background-color: #ffffff;
-    }
-    /* Buttons */
-    .stButton > button {
-        background: linear-gradient(90deg, #3498db, #2980b9);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 10px 20px;
-    }
-    /* Chat suggestion buttons */
-    .suggestion-button {
-        background: linear-gradient(90deg, #95a5a6, #7f8c8d);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        padding: 5px 10px;
-        font-size: 12px;
-        margin: 5px;
-    }
-    .suggestion-button:hover {
-        background: linear-gradient(90deg, #7f8c8d, #95a5a6);
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Load the Terra Design System CSS
+with open("theme.css", "r") as f:
+    css = f.read()
+st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-# Header bar (unchanged)
+# Header
 st.markdown("""
-    <div style='background-color: #2c3e50; padding: 15px; border-radius: 8px 8px 0 0; color: white;'>
-        <h1 style='margin: 0; font-size: 24px;'>AI-Assisted Geotechnical Engineering</h1>
+    <div class='header'>
+        <h1 style='margin: 0; font-size: 24px;'>GeoSmart AI</h1>
+        <p style='margin: 2px 0 0; font-size: 14px; color: white;'>Geotechnical Analysis & Reporting</p>
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar (unchanged)
+# Sidebar
 st.sidebar.markdown("""
-    <div style='text-align: center;'>
-        <img src='https://via.placeholder.com/50' style='border-radius: 50%; margin-bottom: 10px;'/>
+    <div style='text-align: center; padding: 20px 0;'>
+        <img src='https://via.placeholder.com/50' style='border-radius: 50%; margin-bottom: 15px;' alt='AI Geotech Assistant Logo'/>
     </div>
-    <h2 style='color: white; font-size: 20px;'>AI Geotech Assistant</h2>
-    <p style='color: #bdc3c7;'>A tool for geotechnical analysis and reporting.</p>
-    <h3 style='color: white; font-size: 16px; margin-top: 20px;'>User Instructions</h3>
-    <p style='color: #bdc3c7; line-height: 1.5;'>
-        - <b>Expert Chat</b>: Ask geotechnical questions (e.g., "What’s the typical bearing capacity of glacial till in Mercer Island?") to get expert advice.<br>
-        - <b>Document Analysis</b>: Upload PDF or DOCX files (up to 200MB) to extract key geotechnical data like soil profiles and hazards.<br>
-        - <b>Report Generator</b>: Generate detailed reports by selecting a report type and providing project details. Use analyzed documents for better accuracy.<br>
-        <b>Tips</b>:<br>
-        - Clear chat or documents as needed using the respective "Clear" buttons.<br>
-        - Switch between tabs to analyze documents, generate reports, and chat without losing data.
-    </p>
+    <h2 style='color: #FFFFFF; font-size: 20px; margin-bottom: 10px;'>AI Geotech Assistant</h2>
+    <p style='color: var(--text-light); font-size: 13px; font-weight: 300; margin-bottom: 20px;'>A tool for geotechnical analysis and reporting.</p>
+    <hr style='border-color: var(--neutral-gray); margin: 25px 0;'>
+    <div style='background-color: var(--neutral-light); padding: 15px; border-radius: var(--border-radius-medium);'>
+        <h3 style='color: var(--secondary-accent); font-size: 16px; margin-top: 0; margin-bottom: 10px;'>User Instructions</h3>
+        <p style='color: var(--text-light); font-size: 13px; line-height: 1.6;'>
+            - <b>Expert Chat</b>: Ask geotechnical questions (e.g., "What’s the typical bearing capacity of glacial till in Mercer Island?") to get expert advice.<br>
+            - <b>Document Analysis</b>: Upload PDF or DOCX files (up to 200MB) to extract key geotechnical data like soil profiles and hazards.<br>
+            - <b>Report Generator</b>: Generate detailed reports by selecting a report type and providing project details. Use analyzed documents for better accuracy.<br>
+            <b>Tips</b>:<br>
+            - Clear chat or documents as needed using the respective "Clear" buttons.<br>
+            - Switch between tabs to analyze documents, generate reports, and chat without losing data.
+        </p>
+    </div>
 """, unsafe_allow_html=True)
 
-# Tabs (unchanged)
+# Tabs
 tab1, tab2, tab3 = st.tabs(["Expert Chat", "Document Analysis", "Report Generator"])
 
 # Expert Chat
@@ -167,7 +54,7 @@ with tab1:
         st.session_state.messages = []
 
     # Add a clear chat button
-    if st.button("Clear Chat"):
+    if st.button("Clear Chat", key="clear_chat"):
         st.session_state.messages = []
         with open(chat_file, "w") as f:
             json.dump(st.session_state.messages, f)
@@ -183,9 +70,9 @@ with tab1:
                 if message["role"] == "user":
                     st.markdown(
                         f"""
-                        <div style='background-color: #d1e7dd; padding: 10px; border-radius: 10px; margin: 5px 0;'>
+                        <div class='chat-bubble-user' role='article' aria-label='User message'>
                             <strong>User:</strong> {message['content']}<br>
-                            <small style='color: #7f8c8d;'>{timestamp}</small>
+                            <small style='color: var(--text-light);'>{timestamp}</small>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -193,9 +80,9 @@ with tab1:
                 else:
                     st.markdown(
                         f"""
-                        <div style='background-color: #e0f7fa; padding: 10px; border-radius: 10px; margin: 5px 0;'>
-                            <strong>AI:</strong> {message['content']}<br>
-                            <small style='color: #7f8c8d;'>{timestamp}</small>
+                        <div class='chat-bubble-ai' role='article' aria-label='AI response'>
+                            <strong>AI Geotech Assistant:</strong> {message['content']}<br>
+                            <small style='color: var(--neutral-light);'>{timestamp}</small>
                         </div>
                         """,
                         unsafe_allow_html=True
@@ -221,8 +108,7 @@ with tab1:
     if "chat_input_value" not in st.session_state:
         st.session_state.chat_input_value = ""
 
-    st.markdown("**Try these questions:**")
-    cols = st.columns(4)
+    st.markdown("<h3>Try these questions:</h3>", unsafe_allow_html=True)
     suggestions = [
         "What is the typical bearing capacity of glacial till in Mercer Island?",
         "How do I assess slope stability in a seismic zone?",
@@ -230,16 +116,21 @@ with tab1:
         "Can you explain the soil profile for a site in Mercer Island?"
     ]
     for idx, suggestion in enumerate(suggestions):
-        with cols[idx]:
-            if st.button(suggestion, key=f"suggestion_{idx}", help="Click to use this question", on_click=lambda s=suggestion: st.session_state.update({"chat_input_value": s})):
-                st.session_state.chat_input_value = suggestion
+        if st.button(
+            suggestion,
+            key=f"suggestion_{idx}",
+            help=f"Click to ask: {suggestion}",
+            on_click=lambda s=suggestion: st.session_state.update({"chat_input_value": s})
+        ):
+            st.session_state.chat_input_value = suggestion
 
     # Chat input using st.form
     with st.form(key=f"chat_form_{len(st.session_state.messages)}", clear_on_submit=True):
         query = st.text_input(
             "Ask a geotechnical question:",
             value=st.session_state.chat_input_value,
-            key=f"chat_input_{len(st.session_state.messages)}"
+            key=f"chat_input_{len(st.session_state.messages)}",
+            placeholder="Type your question here..."
         )
         submit_button = st.form_submit_button("Send")
 
@@ -248,13 +139,13 @@ with tab1:
         st.session_state.chat_input_value = ""
 
         # Add user message to history with timestamp
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
         st.session_state.messages.append({"role": "user", "content": query, "timestamp": timestamp})
 
         # Update chat display
         update_chat()
 
-        # Show loading spinner
+        # Show loading spinner with progress feedback
         with st.spinner("AI is thinking..."):
             try:
                 # Construct chat history as a string
@@ -265,7 +156,7 @@ with tab1:
                 result = chat_agent.execute(query, chat_history)
                 
                 # Add AI response to history with timestamp
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
                 st.session_state.messages.append({"role": "assistant", "content": result, "timestamp": timestamp})
 
                 # Update chat display
@@ -273,7 +164,7 @@ with tab1:
 
             except Exception as e:
                 st.error(f"Error: {e}")
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
                 st.session_state.messages.append({"role": "assistant", "content": f"Error: {e}", "timestamp": timestamp})
                 update_chat()
 
@@ -289,7 +180,6 @@ with tab2:
 
     # Conditionally render the file uploader based on the reset state
     if st.session_state.reset_file_uploader:
-        # Reset the flag and rerun to clear the file uploader
         st.session_state.reset_file_uploader = False
         uploaded_files = st.file_uploader(
             "Upload Geotechnical Documents",
@@ -305,42 +195,14 @@ with tab2:
             key="file_uploader"
         )
 
-    # Add the Clear All button directly below the file uploader with custom styling
+    # Add the Clear All button
     if uploaded_files:
-        # Add a container for the button to control its alignment and spacing
-        st.markdown(
-            """
-            <style>
-            .clear-all-container {
-                display: flex;
-                justify-content: flex-end;
-                margin-top: 10px;
-                margin-bottom: 20px;
-            }
-            .clear-all-button {
-                background: linear-gradient(90deg, #e74c3c, #c0392b);
-                color: white;
-                border: none;
-                border-radius: 5px;
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-            .clear-all-button:hover {
-                background: linear-gradient(90deg, #c0392b, #e74c3c);
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
-        # Place the button in a container for alignment
         with st.container():
             st.markdown('<div class="clear-all-container">', unsafe_allow_html=True)
             if st.button("Clear All", key="clear_all_button"):
-                # Set the reset flag and clear summaries
                 st.session_state.reset_file_uploader = True
-                st.session_state.summaries = []  # Clear summaries
-                st.rerun()  # Rerun the app to reset the file uploader
+                st.session_state.summaries = []
+                st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
         with st.spinner("Analyzing documents..."):
@@ -357,21 +219,20 @@ with tab2:
                 except Exception as e:
                     st.error(f"Error analyzing {uploaded_file.name}: {e}")
                 finally:
-                    # Clean up the temporary file
                     if os.path.exists(temp_filename):
                         os.remove(temp_filename)
             if summaries:
-                st.markdown("### Document Summaries")
+                st.markdown("<h3>Document Summaries</h3>", unsafe_allow_html=True)
                 for idx, summary in enumerate(summaries):
                     badge_color = {
-                        "Geotechnical Feasibility Report": "#3498db",
-                        "Feasibility Report": "#f1c40f",
-                        "Site Investigation": "#2ecc71",
-                        "Foundation Recommendation": "#e74c3c"
-                    }.get(summary.doc_type, "#95a5a6")
+                        "Geotechnical Feasibility Report": "#E7B15D",
+                        "Feasibility Report": "#D96A4F",
+                        "Site Investigation": "#4F5D75",
+                        "Foundation Recommendation": "#2D3142"
+                    }.get(summary.doc_type, "#768A9F")
                     st.markdown(
                         f"""
-                        <span style='background-color: {badge_color}; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; margin-right: 10px;'>
+                        <span class='badge' style='background-color: {badge_color};'>
                             {summary.doc_type}
                         </span>
                         """,
@@ -420,21 +281,24 @@ with tab3:
         st.session_state.parameters = ""
 
     # Use session state to persist input values
+    report_type_options = ["Site Investigation", "Foundation Recommendation"]
     report_type = st.selectbox(
         "Report Type",
-        ["Site Investigation", "Foundation Recommendation"],
-        index=["Site Investigation", "Foundation Recommendation"].index(st.session_state.report_type),
+        report_type_options,
+        index=report_type_options.index(st.session_state.report_type),
         key="report_type_selectbox"
     )
     project_info = st.text_input(
         "Project Info (e.g., location, client):",
         value=st.session_state.project_info,
-        key="project_info_input"
+        key="project_info_input",
+        placeholder="Enter project details..."
     )
     parameters = st.text_area(
         "Parameters (e.g., soil type, depth):",
         value=st.session_state.parameters,
-        key="parameters_input"
+        key="parameters_input",
+        placeholder="Enter geotechnical parameters..."
     )
 
     # Update session state when inputs change
@@ -442,14 +306,14 @@ with tab3:
     st.session_state.project_info = project_info
     st.session_state.parameters = parameters
 
-    if st.button("Generate Report"):
+    if st.button("Generate Report", key="generate_report"):
         with st.spinner("Generating report..."):
             doc_summaries = [s for s in st.session_state.get("summaries", [])]
             try:
                 # Call the report agent directly
                 report = report_agent.execute(report_type, project_info, parameters, doc_summaries).dict()
                 
-                st.markdown("### Generated Report")
+                st.markdown("<h3>Generated Report</h3>", unsafe_allow_html=True)
                 with st.expander("Executive Summary", expanded=True):
                     st.markdown(f"**{report['executive_summary']}**")
                 with st.expander("Site Description"):

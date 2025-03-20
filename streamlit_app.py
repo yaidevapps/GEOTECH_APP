@@ -1,12 +1,12 @@
 import streamlit as st
-import requests
-from models import DocumentSummary
-from datetime import datetime
-import json
 import os
 import uuid
+import json
+from datetime import datetime
+from agents import chat_agent, extraction_agent, report_agent
+from models import DocumentSummary
 
-# Custom CSS for modern styling
+# Custom CSS for modern styling (unchanged)
 st.markdown("""
     <style>
     /* General app styling */
@@ -128,14 +128,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Header bar
+# Header bar (unchanged)
 st.markdown("""
     <div style='background-color: #2c3e50; padding: 15px; border-radius: 8px 8px 0 0; color: white;'>
         <h1 style='margin: 0; font-size: 24px;'>AI-Assisted Geotechnical Engineering</h1>
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
+# Sidebar (unchanged)
 st.sidebar.markdown("""
     <div style='text-align: center;'>
         <img src='https://via.placeholder.com/50' style='border-radius: 50%; margin-bottom: 10px;'/>
@@ -153,7 +153,7 @@ st.sidebar.markdown("""
     </p>
 """, unsafe_allow_html=True)
 
-# Tabs
+# Tabs (unchanged)
 tab1, tab2, tab3 = st.tabs(["Expert Chat", "Document Analysis", "Report Generator"])
 
 # Expert Chat
@@ -261,12 +261,8 @@ with tab1:
                 chat_history = "\n".join(
                     [f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages[:-1]]
                 )
-                response = requests.post(
-                    "http://localhost:8000/chat",
-                    json={"query": query, "chat_history": chat_history}
-                )
-                response.raise_for_status()
-                result = response.json().get("response", "Error: No response from backend.")
+                # Call the chat agent directly
+                result = chat_agent.execute(query, chat_history)
                 
                 # Add AI response to history with timestamp
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -275,13 +271,8 @@ with tab1:
                 # Update chat display
                 update_chat()
 
-            except requests.exceptions.RequestException as e:
-                st.error(f"Error: Could not connect to the backend. Please ensure the FastAPI server is running at http://localhost:8000. You can start it by running 'uvicorn fastapi_app:app --port 8000' in your terminal.")
-                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                st.session_state.messages.append({"role": "assistant", "content": f"Error: Could not connect to the backend. Please try again later.", "timestamp": timestamp})
-                update_chat()
-            except (KeyError, ValueError) as e:
-                st.error(f"Unexpected response from backend: {e}. Please check the FastAPI server logs for more details.")
+            except Exception as e:
+                st.error(f"Error: {e}")
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 st.session_state.messages.append({"role": "assistant", "content": f"Error: {e}", "timestamp": timestamp})
                 update_chat()
@@ -355,16 +346,20 @@ with tab2:
         with st.spinner("Analyzing documents..."):
             summaries = []
             for uploaded_file in uploaded_files:
-                files = {"file": (uploaded_file.name, uploaded_file.getvalue(), uploaded_file.type)}
+                # Save the uploaded file temporarily
+                temp_filename = f"{uuid.uuid4()}_{uploaded_file.name}"
                 try:
-                    response = requests.post("http://localhost:8000/analyze_document", files=files)
-                    response.raise_for_status()
-                    summary_data = response.json()
-                    summaries.append(DocumentSummary(**summary_data))
-                except requests.exceptions.RequestException as e:
-                    st.error(f"Error analyzing {uploaded_file.name}: {e}. Please ensure the FastAPI server is running at http://localhost:8000.")
-                except ValueError as e:
-                    st.error(f"Invalid summary format for {uploaded_file.name}: {e}")
+                    with open(temp_filename, "wb") as f:
+                        f.write(uploaded_file.getvalue())
+                    # Call the extraction agent directly
+                    summary = extraction_agent.execute(temp_filename)
+                    summaries.append(summary)
+                except Exception as e:
+                    st.error(f"Error analyzing {uploaded_file.name}: {e}")
+                finally:
+                    # Clean up the temporary file
+                    if os.path.exists(temp_filename):
+                        os.remove(temp_filename)
             if summaries:
                 st.markdown("### Document Summaries")
                 for idx, summary in enumerate(summaries):
@@ -449,19 +444,10 @@ with tab3:
 
     if st.button("Generate Report"):
         with st.spinner("Generating report..."):
-            doc_summaries = [s.model_dump() for s in st.session_state.get("summaries", [])]
+            doc_summaries = [s for s in st.session_state.get("summaries", [])]
             try:
-                response = requests.post(
-                    "http://localhost:8000/generate_report",
-                    json={
-                        "report_type": report_type,
-                        "project_info": project_info,
-                        "parameters": parameters,
-                        "doc_summaries": doc_summaries
-                    }
-                )
-                response.raise_for_status()
-                report = response.json()
+                # Call the report agent directly
+                report = report_agent.execute(report_type, project_info, parameters, doc_summaries).dict()
                 
                 st.markdown("### Generated Report")
                 with st.expander("Executive Summary", expanded=True):
@@ -475,7 +461,5 @@ with tab3:
                 with st.expander("Recommendations"):
                     st.markdown(report['recommendations'])
                     
-            except requests.exceptions.RequestException as e:
-                st.error(f"Error generating report: {e}. Please ensure the FastAPI server is running at http://localhost:8000.")
-            except ValueError as e:
-                st.error(f"Invalid report format: {e}")
+            except Exception as e:
+                st.error(f"Error generating report: {e}")

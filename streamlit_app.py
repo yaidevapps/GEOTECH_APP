@@ -6,107 +6,80 @@ from datetime import datetime
 from agents import chat_agent, extraction_agent, report_agent
 from models import DocumentSummary
 
-# Load the Terra Design System CSS
+# Load the Next Edit Design System CSS
 with open("theme.css", "r") as f:
     css = f.read()
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
+st.title("GeoSmart AI")
+
+MAX_FILE_SIZE = 200 * 1024 * 1024  # 200MB
+
+# Initialize session state at the top level
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+    # Load chat history from file if it exists
+    chat_file = "chat_history.json"
+    if os.path.exists(chat_file):
+        with open(chat_file, "r") as f:
+            st.session_state.messages = json.load(f)
+if "reset_file_uploader" not in st.session_state:
+    st.session_state.reset_file_uploader = False
+if "summaries" not in st.session_state:
+    st.session_state.summaries = []
+if "report_type" not in st.session_state:
+    st.session_state.report_type = "Site Investigation"
+if "project_info" not in st.session_state:
+    st.session_state.project_info = ""
+if "parameters" not in st.session_state:
+    st.session_state.parameters = ""
+if "chat_input_value" not in st.session_state:
+    st.session_state.chat_input_value = ""
+
 # Header
 st.markdown("""
-    <div class='header'>
-        <h1 style='margin: 0; font-size: 24px;'>GeoSmart AI</h1>
-        <p style='margin: 2px 0 0; font-size: 14px; color: white;'>Geotechnical Analysis & Reporting</p>
+    <div class='report-header'>
+        <h1 style='margin: 0; font-size: var(--font-size-heading3);'>GeoSmart AI</h1>
+        <p style='margin: var(--spacing-1) 0 0; font-size: var(--font-size-small);'>Geotechnical Analysis & Reporting</p>
     </div>
 """, unsafe_allow_html=True)
 
 # Sidebar
-st.sidebar.markdown("""
-    <div style='text-align: center; padding: 20px 0;'>
-        <img src='https://via.placeholder.com/50' style='border-radius: 50%; margin-bottom: 15px;' alt='AI Geotech Assistant Logo'/>
-    </div>
-    <h2 style='color: #FFFFFF; font-size: 20px; margin-bottom: 10px;'>AI Geotech Assistant</h2>
-    <p style='color: var(--text-light); font-size: 13px; font-weight: 300; margin-bottom: 20px;'>A tool for geotechnical analysis and reporting.</p>
-    <hr style='border-color: var(--neutral-gray); margin: 25px 0;'>
-    <div style='background-color: var(--neutral-light); padding: 15px; border-radius: var(--border-radius-medium);'>
-        <h3 style='color: var(--secondary-accent); font-size: 16px; margin-top: 0; margin-bottom: 10px;'>User Instructions</h3>
-        <p style='color: var(--text-light); font-size: 13px; line-height: 1.6;'>
-            - <b>Expert Chat</b>: Ask geotechnical questions (e.g., "What’s the typical bearing capacity of glacial till in Mercer Island?") to get expert advice.<br>
-            - <b>Document Analysis</b>: Upload PDF or DOCX files (up to 200MB) to extract key geotechnical data like soil profiles and hazards.<br>
-            - <b>Report Generator</b>: Generate detailed reports by selecting a report type and providing project details. Use analyzed documents for better accuracy.<br>
-            <b>Tips</b>:<br>
-            - Clear chat or documents as needed using the respective "Clear" buttons.<br>
-            - Switch between tabs to analyze documents, generate reports, and chat without losing data.
+with st.sidebar:
+    st.header("AI Geotech Assistant")
+    st.markdown("""
+        <p style='font-size: var(--font-size-body); line-height: 1.5;'>
+            A tool for geotechnical analysis and reporting. Use the tabs to:
+            <ul>
+                <li><b>Expert Chat</b>: Ask geotechnical questions (e.g., "What’s the typical bearing capacity of glacial till in Mercer Island?").</li>
+                <li><b>Document Analysis</b>: Upload PDF or DOCX files (up to 200MB) to extract key data like soil profiles and hazards.</li>
+                <li><b>Report Generator</b>: Generate detailed reports by selecting a type and providing project details.</li>
+            </ul>
+            <b>Tips</b>: Clear chat or documents using the "Clear" buttons. Switch tabs without losing data.
         </p>
-    </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # Tabs
 tab1, tab2, tab3 = st.tabs(["Expert Chat", "Document Analysis", "Report Generator"])
 
 # Expert Chat
 with tab1:
-    # Load chat history from file if it exists
-    chat_file = "chat_history.json"
-    if os.path.exists(chat_file):
-        with open(chat_file, "r") as f:
-            st.session_state.messages = json.load(f)
-    else:
+    st.header("Expert Chat")
+    if st.button("Clear Chat", key="clear_chat", use_container_width=True):
         st.session_state.messages = []
-
-    # Add a clear chat button
-    if st.button("Clear Chat", key="clear_chat"):
-        st.session_state.messages = []
-        with open(chat_file, "w") as f:
+        with open("chat_history.json", "w") as f:
             json.dump(st.session_state.messages, f)
 
-    # Create a placeholder for the chat messages
-    chat_placeholder = st.empty()
-
-    # Function to update chat display
-    def update_chat():
-        with chat_placeholder.container():
-            for message in st.session_state.messages:
-                timestamp = message.get("timestamp", "Unknown time")
-                if message["role"] == "user":
-                    st.markdown(
-                        f"""
-                        <div class='chat-bubble-user' role='article' aria-label='User message'>
-                            <strong>User:</strong> {message['content']}<br>
-                            <small style='color: var(--text-light);'>{timestamp}</small>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-                else:
-                    st.markdown(
-                        f"""
-                        <div class='chat-bubble-ai' role='article' aria-label='AI response'>
-                            <strong>AI Geotech Assistant:</strong> {message['content']}<br>
-                            <small style='color: var(--neutral-light);'>{timestamp}</small>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-    # Initial chat display
-    update_chat()
-
-    # Auto-scroll to the bottom
-    st.markdown(
-        """
-        <script>
-        const chatContainer = window.parent.document.querySelector('.stChat');
-        if (chatContainer) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Chat suggestions
-    if "chat_input_value" not in st.session_state:
-        st.session_state.chat_input_value = ""
+    chat_container = st.container()
+    with chat_container:
+        st.markdown('<div class="chat-wrapper">', unsafe_allow_html=True)
+        for message in st.session_state.messages:
+            cls = "chat-bubble-user" if message["role"] == "user" else "chat-bubble-ai"
+            st.markdown(
+                f'<div class="{cls}"><strong>{message["role"].capitalize()}:</strong> {message["content"]}<br><small>{message["timestamp"]}</small></div>',
+                unsafe_allow_html=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("<h3>Try these questions:</h3>", unsafe_allow_html=True)
     suggestions = [
@@ -120,65 +93,42 @@ with tab1:
             suggestion,
             key=f"suggestion_{idx}",
             help=f"Click to ask: {suggestion}",
-            on_click=lambda s=suggestion: st.session_state.update({"chat_input_value": s})
+            on_click=lambda s=suggestion: st.session_state.update({"chat_input_value": s}),
+            use_container_width=True
         ):
             st.session_state.chat_input_value = suggestion
 
-    # Chat input using st.form
-    with st.form(key=f"chat_form_{len(st.session_state.messages)}", clear_on_submit=True):
+    with st.form(key="chat_form", clear_on_submit=True):
         query = st.text_input(
             "Ask a geotechnical question:",
             value=st.session_state.chat_input_value,
-            key=f"chat_input_{len(st.session_state.messages)}",
-            placeholder="Type your question here..."
+            key="chat_input",
+            placeholder="Type your question here...",
+            label_visibility="collapsed"
         )
-        submit_button = st.form_submit_button("Send")
+        submit_button = st.form_submit_button("Send", use_container_width=True)
 
-    # Reset the chat input value after submission
     if submit_button and query:
         st.session_state.chat_input_value = ""
-
-        # Add user message to history with timestamp
-        timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         st.session_state.messages.append({"role": "user", "content": query, "timestamp": timestamp})
-
-        # Update chat display
-        update_chat()
-
-        # Show loading spinner with progress feedback
         with st.spinner("AI is thinking..."):
             try:
-                # Construct chat history as a string
                 chat_history = "\n".join(
                     [f"{msg['role'].capitalize()}: {msg['content']}" for msg in st.session_state.messages[:-1]]
                 )
-                # Call the chat agent directly
                 result = chat_agent.execute(query, chat_history)
-                
-                # Add AI response to history with timestamp
-                timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
-                st.session_state.messages.append({"role": "assistant", "content": result, "timestamp": timestamp})
-
-                # Update chat display
-                update_chat()
-
+                st.session_state.messages.append({"role": "assistant", "content": result, "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                with open("chat_history.json", "w") as f:
+                    json.dump(st.session_state.messages, f)
+                st.rerun()
             except Exception as e:
                 st.error(f"Error: {e}")
-                timestamp = datetime.now().strftime("%Y-%m-19 22:35:%S")
-                st.session_state.messages.append({"role": "assistant", "content": f"Error: {e}", "timestamp": timestamp})
-                update_chat()
-
-        # Save chat history to file
-        with open(chat_file, "w") as f:
-            json.dump(st.session_state.messages, f)
+                st.session_state.messages.append({"role": "assistant", "content": f"Error: {e}", "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
 
 # Document Analysis
 with tab2:
-    # Use a session state variable to control reset
-    if "reset_file_uploader" not in st.session_state:
-        st.session_state.reset_file_uploader = False
-
-    # Conditionally render the file uploader based on the reset state
+    st.header("Document Analysis")
     if st.session_state.reset_file_uploader:
         st.session_state.reset_file_uploader = False
         uploaded_files = st.file_uploader(
@@ -195,25 +145,24 @@ with tab2:
             key="file_uploader"
         )
 
-    # Add the Clear All button
     if uploaded_files:
-        with st.container():
-            st.markdown('<div class="clear-all-container">', unsafe_allow_html=True)
-            if st.button("Clear All", key="clear_all_button"):
-                st.session_state.reset_file_uploader = True
-                st.session_state.summaries = []
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('<div class="clear-all-container">', unsafe_allow_html=True)
+        if st.button("Clear All", key="clear_all_button", use_container_width=True):
+            st.session_state.reset_file_uploader = True
+            st.session_state.summaries = []
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
         with st.spinner("Analyzing documents..."):
             summaries = []
             for uploaded_file in uploaded_files:
-                # Save the uploaded file temporarily
+                if uploaded_file.size > MAX_FILE_SIZE:
+                    st.error(f"File {uploaded_file.name} exceeds 200MB limit.")
+                    continue
                 temp_filename = f"{uuid.uuid4()}_{uploaded_file.name}"
                 try:
                     with open(temp_filename, "wb") as f:
                         f.write(uploaded_file.getvalue())
-                    # Call the extraction agent directly
                     summary = extraction_agent.execute(temp_filename)
                     summaries.append(summary)
                 except Exception as e:
@@ -225,62 +174,62 @@ with tab2:
                 st.markdown("<h3>Document Summaries</h3>", unsafe_allow_html=True)
                 for idx, summary in enumerate(summaries):
                     badge_color = {
-                        "Geotechnical Feasibility Report": "#E7B15D",
-                        "Feasibility Report": "#D96A4F",
-                        "Site Investigation": "#4F5D75",
-                        "Foundation Recommendation": "#2D3142"
-                    }.get(summary.doc_type, "#768A9F")
+                        "Geotechnical Feasibility Report": "#4a6b8a",  # Primary Blue
+                        "Feasibility Report": "#4a6b8a",
+                        "Site Investigation": "#4a6b8a",
+                        "Foundation Recommendation": "#4a6b8a"
+                    }.get(summary.doc_type, "#4a6b8a")
                     st.markdown(
-                        f"""
-                        <span class='badge' style='background-color: {badge_color};'>
-                            {summary.doc_type}
-                        </span>
-                        """,
+                        f'<span class="badge" style="background-color: {badge_color};">{summary.doc_type}</span>',
                         unsafe_allow_html=True
                     )
                     with st.expander(f"Summary for {uploaded_files[idx].name}", expanded=True):
-                        st.markdown(f"**Document Type:** {summary.doc_type}")
-                        st.markdown(f"**Project Info:** Location: {summary.project_info.location}, Client: {summary.project_info.client or 'Unknown'}, Date: {summary.project_info.date or 'Unknown'}")
-                        st.markdown("**Soil Profile:**")
+                        content_lines = [
+                            f"- **Document Type:** {summary.doc_type}",
+                            f"- **Project Info:** Location: {summary.project_info.location}, Client: {summary.project_info.client or 'Unknown'}, Date: {summary.project_info.date or 'Unknown'}",
+                            "- **Soil Profile:**"
+                        ]
                         if summary.soil_profile:
                             for layer in summary.soil_profile:
-                                st.markdown(f"- Depth {layer.depth_start}-{layer.depth_end}m: {layer.soil_type}, Strength: {layer.strength if layer.strength is not None else 'Not Provided'} kPa")
+                                content_lines.append(f"  - Depth {layer.depth_start}-{layer.depth_end}m: {layer.soil_type}, Strength: {layer.strength if layer.strength is not None else 'Not Provided'} kPa")
                         else:
-                            st.markdown("(No data available)")
-                        st.markdown(f"**Groundwater Depth:** {summary.groundwater_depth if summary.groundwater_depth is not None else 'Not Provided'} m")
-                        st.markdown("**Test Results:**")
+                            content_lines.append("  - (No data available)")
+                        content_lines.extend([
+                            f"- **Groundwater Depth:** {summary.groundwater_depth if summary.groundwater_depth is not None else 'Not Provided'} m",
+                            "- **Test Results:**"
+                        ])
                         if summary.test_results:
                             for key, value in summary.test_results.items():
-                                st.markdown(f"- {key}: {value}")
+                                content_lines.append(f"  - {key}: {value}")
                         else:
-                            st.markdown("(No data available)")
+                            content_lines.append("  - (No data available)")
                         if summary.hazards:
-                            st.markdown("**Hazards:**")
-                            st.markdown(f"- Erosion: {summary.hazards.erosion or 'Not Provided'}")
-                            st.markdown(f"- Slide: {summary.hazards.slide or 'Not Provided'}")
-                            st.markdown(f"- Seismic: {summary.hazards.seismic or 'Not Provided'}")
-                            st.markdown(f"- Steep Slope: {summary.hazards.steep_slope or 'Not Provided'}")
-                            st.markdown(f"- Watercourse Buffer: {summary.hazards.watercourse_buffer or 'Not Provided'}")
-                        st.markdown(f"**Slope Angle:** {summary.slope_angle if summary.slope_angle is not None else 'Not Provided'}°")
-                        st.markdown(f"**Lake Proximity:** {summary.lake_proximity if summary.lake_proximity is not None else 'Not Provided'} m")
-                        st.markdown(f"**Confidence:** {summary.confidence}")
+                            content_lines.extend([
+                                "- **Hazards:**",
+                                f"  - Erosion: {summary.hazards.erosion or 'Not Provided'}",
+                                f"  - Slide: {summary.hazards.slide or 'Not Provided'}",
+                                f"  - Seismic: {summary.hazards.seismic or 'Not Provided'}",
+                                f"  - Steep Slope: {summary.hazards.steep_slope or 'Not Provided'}",
+                                f"  - Watercourse Buffer: {summary.hazards.watercourse_buffer or 'Not Provided'}"
+                            ])
+                        content_lines.extend([
+                            f"- **Slope Angle:** {summary.slope_angle if summary.slope_angle is not None else 'Not Provided'}°",
+                            f"- **Lake Proximity:** {summary.lake_proximity if summary.lake_proximity is not None else 'Not Provided'} m",
+                            f"- **Confidence:** {summary.confidence}"
+                        ])
                         if summary.recommendations:
-                            st.markdown("**Recommendations:**")
+                            content_lines.append("- **Recommendations:**")
                             for rec in summary.recommendations:
-                                st.markdown(f"- {rec}")
+                                content_lines.append(f"  - {rec}")
+                        st.markdown(
+                            f'<div class="expander-content">{"<br>".join(content_lines)}</div>',
+                            unsafe_allow_html=True
+                        )
                 st.session_state.summaries = summaries
 
 # Report Generator
 with tab3:
-    # Initialize session state for inputs if not already set
-    if "report_type" not in st.session_state:
-        st.session_state.report_type = "Site Investigation"
-    if "project_info" not in st.session_state:
-        st.session_state.project_info = ""
-    if "parameters" not in st.session_state:
-        st.session_state.parameters = ""
-
-    # Use session state to persist input values
+    st.header("Report Generator")
     report_type_options = ["Site Investigation", "Foundation Recommendation"]
     report_type = st.selectbox(
         "Report Type",
@@ -301,29 +250,24 @@ with tab3:
         placeholder="Enter geotechnical parameters..."
     )
 
-    # Update session state when inputs change
     st.session_state.report_type = report_type
     st.session_state.project_info = project_info
     st.session_state.parameters = parameters
 
-    if st.button("Generate Report", key="generate_report"):
+    if st.button("Generate Report", key="generate_report", use_container_width=True):
         with st.spinner("Generating report..."):
             doc_summaries = [s for s in st.session_state.get("summaries", [])]
             try:
-                # Call the report agent directly
                 report = report_agent.execute(report_type, project_info, parameters, doc_summaries).dict()
-                
                 st.markdown("<h3>Generated Report</h3>", unsafe_allow_html=True)
-                with st.expander("Executive Summary", expanded=True):
-                    st.markdown(f"**{report['executive_summary']}**")
-                with st.expander("Site Description"):
-                    st.markdown(report['site_description'])
-                with st.expander("Methodology"):
-                    st.markdown(report['methodology'])
-                with st.expander("Findings"):
-                    st.markdown(report['findings'])
-                with st.expander("Recommendations"):
-                    st.markdown(report['recommendations'])
-                    
+                for section, content in report.items():
+                    if section != "report_type":
+                        with st.expander(section.replace("_", " ").title(), expanded=True):
+                            content_lines = content.split(". ")
+                            content_html = "<br>".join([f"- {line.strip()}" if not line.startswith("-") else line.strip() for line in content_lines if line.strip()])
+                            st.markdown(
+                                f'<div class="expander-content">{content_html}</div>',
+                                unsafe_allow_html=True
+                            )
             except Exception as e:
                 st.error(f"Error generating report: {e}")

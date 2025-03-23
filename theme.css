@@ -1,108 +1,143 @@
-/* Terra Design System - Centralized Styles */
+/* Next Edit Design System - Centralized Styles for GeoSmart AI */
 
 /* Define Design Tokens as CSS Custom Properties */
 :root {
     /* Colors */
-    --primary-dark: #2D3142; /* Deep slate */
-    --primary-medium: #4F5D75; /* Steel blue */
-    --secondary-accent: #E7B15D; /* Earthy amber */
-    --secondary-terracotta: #D96A4F; /* Terracotta */
-    --neutral-light: #F2F4F8; /* Off-white */
-    --neutral-gray: #768A9F; /* Sophisticated gray */
-    --text-dark: #2D3142;
-    --text-medium: #4F5D75;
-    --text-light: #768A9F;
+    --primary-dark: #1f2024;        /* Dark Gray */
+    --primary-blue: #4a6b8a;        /* Primary Blue */
+    --primary-light: #7ba7bc;       /* Light Blue */
+    --neutral-white: #ffffff;       /* White */
+    --neutral-light-gray: #f5f5f4;  /* Light Gray */
+    --neutral-mid-gray: #dddbda;    /* Mid Gray */
+    --neutral-gray: #aaaaaa;        /* Gray */
+    --neutral-dark-blue: #0b2535;   /* Dark Blue */
+    --neutral-header: #1b1f22;      /* Header Dark Gray */
+    --neutral-footer: #18191b;      /* Near Black */
+    --text-dark: #1f2024;
+    --text-gray: #aaaaaa;
+    --error-red: #d32f2f;          /* Error Color */
+    --success-green: #388e3c;      /* Success Color */
 
     /* Typography */
-    --font-heading: 'Montserrat', sans-serif;
-    --font-body: 'Lato', sans-serif;
-    --font-size-heading1: 20px;
-    --font-size-heading2: 18px;
-    --font-size-heading3: 16px;
-    --font-size-body: 14px;
-    --font-size-caption: 12px;
+    --font-heading: 'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-body: 'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-code: 'Fira Code', monospace;
+    --font-size-heading1: 48px;
+    --font-size-heading2: 32px;
+    --font-size-heading3: 20px;
+    --font-size-body: 16px;
+    --font-size-small: 14px;
 
     /* Spacing and Borders */
-    --border-radius-small: 5px;
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 16px;
+    --spacing-4: 24px;
+    --spacing-5: 32px;
+    --border-radius-small: 4px;
     --border-radius-medium: 8px;
-    --border-radius-large: 15px;
-    --shadow-subtle: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* General App Styling */
 .stApp {
-    background-color: var(--neutral-light);
+    background-color: var(--neutral-white);
+    font-family: var(--font-body);
+    color: var(--text-dark);
+}
+
+/* Enforce Typography Globally */
+.stMarkdown, .stText, .stJson, .stInfo, .stWarning, .stError, .stSuccess {
     font-family: var(--font-body);
 }
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
 /* Header */
-.header {
-    background-color: var(--primary-dark);
-    padding: 15px;
-    border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
-    color: white;
+.report-header {
+    background-color: var(--neutral-header);
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-small) var(--border-radius-small) 0 0;
+    color: var(--neutral-white);
     text-align: center;
 }
 
 /* Sidebar */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, var(--primary-dark), var(--primary-medium));
-    padding: 20px;
+    background-color: var(--neutral-dark-blue);
+    padding: var(--spacing-4);
+    color: var(--neutral-white);
+}
+
+[data-testid="stSidebar"] * {
+    color: var(--neutral-white);
+}
+
+[data-testid="stSidebar"] h2 {
+    font-family: var(--font-heading);
+    font-size: var(--font-size-heading3);
+    margin-bottom: var(--spacing-3);
+}
+
+[data-testid="stSidebar"] p {
+    font-size: var(--font-size-body);
+    line-height: 1.5;
 }
 
 /* Tabs */
 .stTabs {
-    background-color: white;
+    background-color: var(--neutral-light-gray);
     border-radius: var(--border-radius-medium);
-    box-shadow: var(--shadow-subtle);
-    padding: 20px;
+    padding: var(--spacing-5);
 }
 
 .stTabs button:hover {
-    background-color: var(--neutral-light);
+    background-color: var(--neutral-mid-gray);
     transition: background-color 0.3s;
 }
 
 /* Chat Styling */
-.stChat {
-    background-color: var(--neutral-light);
-    padding: 20px;
+.stContainer {
+    background-color: var(--neutral-white);
+    padding: var(--spacing-4);
     border-radius: var(--border-radius-medium);
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
+    min-height: 50vh;
+    max-height: 80vh;
     overflow-y: auto;
 }
 
+.chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
 .chat-bubble-user {
-    background-color: var(--neutral-light) !important;
+    background-color: var(--neutral-light-gray);
     border: 1px solid var(--neutral-gray);
-    box-shadow: var(--shadow-subtle);
     max-width: 70%;
     align-self: flex-start;
-    margin: 15px 0;
-    padding: 20px;
-    border-radius: var(--border-radius-large);
+    margin: var(--spacing-3) 0;
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-medium);
     color: var(--text-dark);
 }
 
 .chat-bubble-ai {
-    background-color: var(--primary-dark) !important;
-    border: 1px solid var(--primary-medium);
-    box-shadow: var(--shadow-subtle);
+    background-color: var(--primary-blue);
+    border: 1px solid var(--primary-light);
     max-width: 70%;
     align-self: flex-end;
-    margin: 15px 0;
-    padding: 20px;
-    border-radius: var(--border-radius-large);
-    color: white;
+    margin: var(--spacing-3) 0;
+    padding: var(--spacing-3);
+    border-radius: var(--border-radius-medium);
+    color: var(--neutral-white);
 }
 
-.stChatInput {
-    margin-top: 20px;
-    border: 1px solid var(--neutral-gray);
-    border-radius: var(--border-radius-large);
-    padding: 5px;
+.chat-bubble-user small, .chat-bubble-ai small {
+    color: var(--text-gray);
+    font-size: var(--font-size-small);
 }
 
 /* Inputs */
@@ -110,148 +145,167 @@
 .stTextArea > div > textarea,
 .stSelectbox > div > div {
     border: 1px solid var(--neutral-gray);
-    border-radius: var(--border-radius-medium);
-    padding: 10px;
-    background-color: white;
+    border-radius: var(--border-radius-small);
+    padding: var(--spacing-2);
+    background-color: var(--neutral-white);
+    color: var(--text-dark);
+    font-family: var(--font-body);
 }
 
-.stSelectbox,
+.stTextInput:focus,
+.stTextArea:focus,
+.stSelectbox:focus {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+}
+
 .stTextInput,
-.stTextArea {
-    margin-bottom: 20px;
+.stTextArea,
+.stSelectbox {
+    margin-bottom: var(--spacing-4);
 }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(90deg, var(--primary-dark), var(--primary-medium));
-    color: white;
+    background-color: var(--primary-blue);
+    color: var(--neutral-white);
     border: none;
     border-radius: var(--border-radius-small);
-    padding: 10px 20px;
-    transition: background 0.3s ease;
+    padding: var(--spacing-2) var(--spacing-4);
+    transition: background-color 0.3s ease;
+    font-family: var(--font-body);
 }
 
 .stButton > button:hover {
-    background: linear-gradient(90deg, var(--primary-medium), var(--primary-dark));
+    background-color: var(--primary-light);
 }
 
-.stButton > button#generate_report {
-    margin-top: 15px;
+.stButton > button:focus {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
 }
 
-/* Chat Suggestion Buttons */
 .suggestion-button {
-    background: linear-gradient(90deg, var(--neutral-gray), var(--primary-medium));
-    color: white;
+    background-color: var(--neutral-gray);
+    color: var(--neutral-white);
     border: none;
-    border-radius: var(--border-radius-large);
-    padding: 5px 10px;
-    font-size: var(--font-size-caption);
-    margin: 10px 0; /* Increased from 8px for better spacing */
-    transition: background 0.3s ease;
+    border-radius: var(--border-radius-small);
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-size-small);
+    margin: var(--spacing-2) 0;
+    transition: background-color 0.3s ease;
 }
 
 .suggestion-button:hover {
-    background: linear-gradient(90deg, var(--primary-medium), var(--neutral-gray));
+    background-color: var(--primary-light);
 }
 
-/* Document Analysis and Report Generator Expanders */
+/* Expanders */
 .st-expander[data-testid="stExpander"] {
-    border: 1px solid var(--neutral-gray);
+    border: 1px solid var(--neutral-mid-gray);
     border-radius: var(--border-radius-medium);
-    margin-bottom: 20px; /* Increased from 15px */
-    margin-top: 10px; /* Added for spacing above */
-    background-color: white;
+    margin-bottom: var(--spacing-4);
+    margin-top: var(--spacing-2);
+    background-color: var(--neutral-white);
 }
 
 .st-expander summary {
     font-family: var(--font-heading);
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-dark);
-    background-color: var(--neutral-light);
-    padding: 10px;
+    background-color: var(--neutral-white);
+    padding: var(--spacing-2);
     border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0;
 }
 
-.st-expander p {
-    color: var(--text-medium);
+.expander-content {
+    padding: var(--spacing-3);
+    background-color: var(--neutral-white);
+    border-radius: 0 0 var(--border-radius-medium) var(--border-radius-medium);
+    margin-top: 0;
     line-height: 1.6;
-    margin: 8px 0;
-}
-
-/* Headings */
-h3 {
-    font-family: var(--font-heading);
-    font-size: 18px;
-    color: var(--text-dark);
-    border-bottom: 2px solid var(--secondary-accent);
-    padding-bottom: 8px;
-    margin-top: 25px; /* Added for spacing above */
-    margin-bottom: 20px; /* Increased from 15px for spacing below */
-}
-
-/* Clear All Button for Document Analysis */
-.clear-all-container {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 15px;
-    margin-bottom: 25px;
-}
-
-.clear-all-button {
-    background: linear-gradient(90deg, var(--secondary-terracotta), var(--secondary-accent));
-    color: white;
-    border: none;
-    border-radius: var(--border-radius-small);
-    padding: 8px 16px;
-    font-size: var(--font-size-caption);
-    transition: background 0.3s ease;
-}
-
-.clear-all-button:hover {
-    background: linear-gradient(90deg, var(--secondary-accent), var(--secondary-terracotta));
 }
 
 /* Badges for Document Types */
 .badge {
-    background-color: var(--secondary-accent);
-    color: var(--text-dark);
-    padding: 6px 12px;
-    border-radius: var(--border-radius-large);
-    font-size: var(--font-size-caption);
-    margin-right: 10px;
-    font-weight: 600;
+    background-color: var(--primary-blue);
+    color: var(--neutral-white);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--border-radius-medium);
+    font-size: var(--font-size-small);
+    margin-right: var(--spacing-2);
+    font-weight: 500;
+}
+
+/* Alerts */
+.stError {
+    background-color: var(--error-red);
+    color: var(--neutral-white);
+    padding: var(--spacing-2);
+    border-radius: var(--border-radius-small);
+}
+
+.stSuccess {
+    background-color: var(--success-green);
+    color: var(--neutral-white);
+    padding: var(--spacing-2);
+    border-radius: var(--border-radius-small);
+}
+
+/* Clear All Container */
+.clear-all-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .stTabs {
-        padding: 10px;
+        padding: var(--spacing-2);
     }
-
-    .stChat {
-        min-height: 300px;
+    .stContainer {
+        min-height: 30vh;
+        max-height: 70vh;
+        padding: var(--spacing-2);
     }
-
     .chat-bubble-user,
     .chat-bubble-ai {
         max-width: 90%;
     }
-
     .stTextInput > div > input,
     .stTextArea > div > textarea,
     .stSelectbox > div > div {
         font-size: var(--font-size-body);
     }
-
     .stButton > button,
-    .suggestion-button,
-    .clear-all-button {
-        padding: 8px 16px;
-        font-size: var(--font-size-caption);
+    .suggestion-button {
+        padding: var(--spacing-1) var(--spacing-3);
     }
-
     .st-expander summary {
         font-size: var(--font-size-body);
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .stTabs {
+        padding: var(--spacing-3);
+    }
+    .stContainer {
+        padding: var(--spacing-3);
+    }
+    .chat-bubble-user,
+    .chat-bubble-ai {
+        max-width: 80%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .stTabs {
+        padding: var(--spacing-5);
+    }
+    .stContainer {
+        padding: var(--spacing-4);
     }
 }
